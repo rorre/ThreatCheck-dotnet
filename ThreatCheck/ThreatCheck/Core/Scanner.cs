@@ -29,7 +29,7 @@ namespace ThreatCheck
                     Buffer.BlockCopy(originalarray, originalarray.Length - 256, offendingBytes, 0, 256);
                 }
 
-                Helpers.HexDump(offendingBytes);
+                Helpers.HexDump(offendingBytes, originalarray.Length);
                 Complete = true;
             }
 
