@@ -15,6 +15,8 @@ namespace ThreatCheck
 
         byte[] FileBytes;
 
+        //The appName appears to matter in the detections that will occur especially for scripts. Giving it a powershell app appears to be the most 
+        //aggresive in producing detections so use that as the default.
         public AmsiInstance(string appName = "PowerShell_C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe_5.1.22621.2506")
         {
             AmsiInitialize(appName, out AmsiContext);
@@ -24,11 +26,6 @@ namespace ThreatCheck
         public void AnalyzeBytes(byte[] bytes)
         {
             FileBytes = bytes;
-            /*Console.WriteLine("creating script extent");
-            string script = System.Text.Encoding.UTF8.GetString(bytes);
-            ScriptBlockAst Block1 = (ScriptBlockAst)ScriptBlock.Create(script).Ast;
-            Console.WriteLine(Block1.Extent.Text);
-            FileBytes = System.Text.Encoding.Unicode.GetBytes(Block1.Extent.Text);*/
 
             var status = ScanBuffer(FileBytes);
             Console.WriteLine("status value: " + status);
