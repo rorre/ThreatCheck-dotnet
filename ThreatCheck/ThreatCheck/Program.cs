@@ -70,12 +70,10 @@ namespace ThreatCheck
             {
                 if (File.Exists(opts.InFile) && opts.FileType =="Bin")
                 {
-                    Console.WriteLine("getting bytes");
                     fileContent = File.ReadAllBytes(opts.InFile);
                 }
                 else if(File.Exists(opts.InFile) && opts.FileType == "Script")
                 {
-                    Console.WriteLine("getting string");
                     scriptContent = File.ReadAllText(opts.InFile);
                 }
                 else
@@ -93,7 +91,6 @@ namespace ThreatCheck
             switch (engine)
             {
                 case ScanningEngine.Defender:
-                    Console.WriteLine("Scanning with Defender");
                     if (fileContent != null)
                     {
                         ScanWithDefender(fileContent);
@@ -106,7 +103,7 @@ namespace ThreatCheck
                     
                     break;
                 case ScanningEngine.Amsi:
-                    Console.WriteLine("scanning with AMSI");
+                    
                     if (fileContent != null)
                     {
                         ScanWithAmsi(fileContent);
@@ -156,8 +153,8 @@ namespace ThreatCheck
             }
         }
         //There was an issue with the way bytes were converted when using File.ReadAllBytes
-        //that causedd the bytes to not properly match signatures compared to when being ran. 
-        //The string has be decode from unicode in order to get proper detections 
+        //that causedd the bytes to not properly match signatures compared to when being executed. 
+        //The string has be decoded from unicode in order to get proper detections 
         static void ScanWithAmsi(string file)
         {
             
