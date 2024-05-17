@@ -22,7 +22,7 @@ namespace ThreatCheck
             [Option('u', "url", Required = false, HelpText = "Analyze a file from a URL")]
             public string InUrl { get; set; }
 
-            [Option('t', "filetype", Default = "Bin", Required = false, HelpText = "File type to scan. Options: Bin, Script")]
+            [Option('t', "type", Default = "Bin", Required = false, HelpText = "File type to scan. Options: Bin, Script")]
             public string FileType { get; set; }
         }
 
