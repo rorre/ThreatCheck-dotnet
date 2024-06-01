@@ -2,46 +2,39 @@
 
 namespace ThreatCheck
 {
+//there was an issue with array handling when scanning small scripts. ChatGPT fixed it 
     class Scanner
     {
         public static bool Malicious = false;
         public static bool Complete = false;
 
-        public virtual byte[] HalfSplitter(byte[] originalarray, int lastgood)
+        public virtual byte[] HalfSplitter(byte[] originalArray, int lastGood)
         {
-            var splitArray = new byte[(originalarray.Length - lastgood) / 2 + lastgood];
+            int splitSize = (originalArray.Length - lastGood) / 2 + lastGood;
+            var splitArray = new byte[splitSize];
 
-            if (originalarray.Length == splitArray.Length + 1)
+            if (originalArray.Length == splitSize + 1)
             {
-                var msg = string.Format("Identified end of bad bytes at offset 0x{0:X}", originalarray.Length);
-
+                var msg = $"Identified end of bad bytes at offset 0x{originalArray.Length:X}";
                 CustomConsole.WriteThreat(msg);
 
-                byte[] offendingBytes = new byte[256];
-
-                if (originalarray.Length < 256)
-                {
-                    Array.Resize(ref offendingBytes, originalarray.Length);
-                    Buffer.BlockCopy(originalarray, originalarray.Length, offendingBytes, 0, originalarray.Length);
-                }
-                else
-                {
-                    Buffer.BlockCopy(originalarray, originalarray.Length - 256, offendingBytes, 0, 256);
-                }
+                int offendingSize = Math.Min(originalArray.Length, 256);
+                var offendingBytes = new byte[offendingSize];
+                Buffer.BlockCopy(originalArray, originalArray.Length - offendingSize, offendingBytes, 0, offendingSize);
 
                 Helpers.HexDump(offendingBytes, originalarray.Length);
                 Complete = true;
             }
 
-            Array.Copy(originalarray, splitArray, splitArray.Length);
+            Array.Copy(originalArray, splitArray, splitArray.Length);
             return splitArray;
         }
 
-        public virtual byte[] Overshot(byte[] originalarray, int splitarraysize)
+        public virtual byte[] Overshot(byte[] originalArray, int splitArraySize)
         {
-            var newsize = (originalarray.Length - splitarraysize) / 2 + splitarraysize;
+            int newSize = (originalArray.Length - splitArraySize) / 2 + splitArraySize;
 
-            if (newsize.Equals(originalarray.Length - 1))
+            if (newSize == originalArray.Length - 1)
             {
                 Complete = true;
 
@@ -51,10 +44,10 @@ namespace ThreatCheck
                 }
             }
 
-            var newarray = new byte[newsize];
-            Buffer.BlockCopy(originalarray, 0, newarray, 0, newarray.Length);
+            var newArray = new byte[newSize];
+            Buffer.BlockCopy(originalArray, 0, newArray, 0, newSize);
 
-            return newarray;
+            return newArray;
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Security.Cryptography;
 
 namespace ThreatCheck
 {
@@ -20,6 +21,9 @@ namespace ThreatCheck
 
             [Option('u', "url", Required = false, HelpText = "Analyze a file from a URL")]
             public string InUrl { get; set; }
+
+            [Option('t', "type", Default = "Bin", Required = false, HelpText = "File type to scan. Options: Bin, Script")]
+            public string FileType { get; set; }
         }
 
         public enum ScanningEngine
@@ -45,14 +49,15 @@ namespace ThreatCheck
 
         static void RunOptions(Options opts)
         {
-            var file = new byte[] { };
+            byte[] fileContent = null;
+            string scriptContent = null;           
             var engine = (ScanningEngine)Enum.Parse(typeof(ScanningEngine), opts.Engine, true);
 
             if (!string.IsNullOrEmpty(opts.InUrl))
             {
                 try
                 {
-                    file = DownloadFile(opts.InUrl);
+                   fileContent = DownloadFile(opts.InUrl);
                 }
                 catch
                 {
@@ -63,9 +68,13 @@ namespace ThreatCheck
             }
             else if (!string.IsNullOrEmpty(opts.InFile))
             {
-                if (File.Exists(opts.InFile))
+                if (File.Exists(opts.InFile) && opts.FileType =="Bin")
                 {
-                    file = File.ReadAllBytes(opts.InFile);
+                    fileContent = File.ReadAllBytes(opts.InFile);
+                }
+                else if(File.Exists(opts.InFile) && opts.FileType == "Script")
+                {
+                    scriptContent = File.ReadAllText(opts.InFile);
                 }
                 else
                 {
@@ -82,10 +91,27 @@ namespace ThreatCheck
             switch (engine)
             {
                 case ScanningEngine.Defender:
-                    ScanWithDefender(file);
+                    if (fileContent != null)
+                    {
+                        ScanWithDefender(fileContent);
+                    }
+                    else
+                    {
+                        Console.WriteLine("scritps don't work with defender yet");
+                    }
+                    
+                    
                     break;
                 case ScanningEngine.Amsi:
-                    ScanWithAmsi(file);
+                    
+                    if (fileContent != null)
+                    {
+                        ScanWithAmsi(fileContent);
+                    }
+                    else
+                    {
+                        ScanWithAmsi(scriptContent);
+                    }                    
                     break;
                 default:
                     break;
@@ -99,7 +125,7 @@ namespace ThreatCheck
                 Console.Error.WriteLine(err.ToString());
             }
         }
-
+      
         static byte[] DownloadFile(string url)
         {
             using (var client = new WebClient())
@@ -123,9 +149,25 @@ namespace ThreatCheck
                     CustomConsole.WriteError("Ensure real-time protection is enabled");
                     return;
                 }
-
                 amsi.AnalyzeBytes(file);
             }
         }
+        //There was an issue with the way bytes were converted when using File.ReadAllBytes
+        //that causedd the bytes to not properly match signatures compared to when being executed. 
+        //The string has be decoded from unicode in order to get proper detections 
+        static void ScanWithAmsi(string file)
+        {
+            
+            byte[] filebytes = System.Text.Encoding.Unicode.GetBytes(file);
+            using (var amsi = new AmsiInstance())
+            {
+                if (!amsi.RealTimeProtectionEnabled)
+                {
+                    CustomConsole.WriteError("Ensure real-time protection is enabled");
+                    return;
+                }
+                amsi.AnalyzeBytes(filebytes);
+            }
+        } 
     }
 }

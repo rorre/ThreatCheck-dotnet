@@ -18,7 +18,7 @@ namespace ThreatCheck
         public static extern void AmsiUninitialize(IntPtr amsiContext);
 
         [DllImport("amsi.dll", EntryPoint = "AmsiScanBuffer", CallingConvention = CallingConvention.StdCall)]
-        public static extern int AmsiScanBuffer(IntPtr amsiContext, byte[] buffer, uint length, string contentName, IntPtr session, out AMSI_RESULT result);
+        public static extern int AmsiScanBuffer(IntPtr amsiContext, byte[] buffer, uint length, [MarshalAs(UnmanagedType.LPWStr)] string contentName, IntPtr session, out AMSI_RESULT result);
 
         public enum AMSI_RESULT
         {

@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Net;
 using System.Text;
+using System.Management.Automation;
+using System.Management.Automation.Language;
 
 using static ThreatCheck.NativeMethods;
 
@@ -12,7 +15,9 @@ namespace ThreatCheck
 
         byte[] FileBytes;
 
-        public AmsiInstance(string appName = "ThreatCheck")
+        //The appName appears to matter in the detections that will occur especially for scripts. Giving it a powershell app appears to be the most 
+        //aggresive in producing detections so use that as the default.
+        public AmsiInstance(string appName = "PowerShell_C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe_5.1.22621.2506")
         {
             AmsiInitialize(appName, out AmsiContext);
             AmsiOpenSession(AmsiContext, out AmsiSession);
@@ -23,7 +28,7 @@ namespace ThreatCheck
             FileBytes = bytes;
 
             var status = ScanBuffer(FileBytes);
-
+            Console.WriteLine("status value: " + status);
             if (status != AMSI_RESULT.AMSI_RESULT_DETECTED)
             {
                 CustomConsole.WriteOutput("No threat found!");
@@ -72,13 +77,14 @@ namespace ThreatCheck
 
         AMSI_RESULT ScanBuffer(byte[] buffer)
         {
-            AmsiScanBuffer(AmsiContext, buffer, (uint)buffer.Length, "sample", AmsiSession, out AMSI_RESULT result);
+            AmsiScanBuffer(AmsiContext, buffer, (uint)buffer.Length, "", AmsiSession, out AMSI_RESULT result);
             return result;
         }
 
         AMSI_RESULT ScanBuffer(byte[] buffer, IntPtr session)
         {
-            AmsiScanBuffer(AmsiContext, buffer, (uint)buffer.Length, "sample", session, out AMSI_RESULT result);
+            
+            AmsiScanBuffer(AmsiContext, buffer, (uint)buffer.Length, "", session, out AMSI_RESULT result);
             return result;
         }
 
