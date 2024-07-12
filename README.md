@@ -58,3 +58,7 @@ C:\Users\Rasta>ThreatCheck.exe -f Downloads\launcher.ps1 -e AMSI -t Script
 000000E0   00 53 00 65 00 74 00 56  00 61 00 6C 00 75 00 65   ·S·e·t·V·a·l·u·e
 000000F0   00 28 00 24 00 4E 00 75  00 4C 00 6C 00 2C 00 24   ·(·$·N·u·L·l·,·$
 ```
+
+## Why .NET
+
+I don't like needing to install Visual Studio
